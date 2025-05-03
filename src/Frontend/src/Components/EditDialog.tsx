@@ -7,12 +7,19 @@ import {
   DialogTitle,
   TextField
 } from "@mui/material";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import dayjs from "dayjs";
+import { currentDateTimeString, DATETIME_FORMAT } from "../Utils/DateTimeRelated";
 
 type EditDialogParams = {
   open: boolean;
   isNew: boolean;
+  dateTime: string;
   description: string;
   amount: string;
+  onDateTimeChange: (dateTime: string) => void;
   onDescriptionChange: (description: string) => void;
   onAmountChange: (amount: string) => void;
   onClose: () => void;
@@ -23,9 +30,19 @@ const EditDialog = (params: EditDialogParams) => {
     return (
         <Dialog open={params.open} onClose={params.onClose}>
         <DialogTitle>{params.isNew ? "Add Expense" : "Edit Expense"}</DialogTitle>
-        <Box sx={{ m: 1 }} />
         <DialogContent>
           <Box component="form" onSubmit={params.onSumbit}>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DateTimePicker
+                label="DateTime"
+                views={["year", "month", "day", "hours", "minutes", "seconds"]}
+                ampm={false}
+                format={DATETIME_FORMAT}
+                value={dayjs(params.dateTime)}
+                onChange={(newValue) => params.onDateTimeChange(newValue?.format(DATETIME_FORMAT) ?? currentDateTimeString())}
+                sx={{ mt: 2, mb: 2 }}
+              />
+            </LocalizationProvider>
             <TextField
               fullWidth
               label="Description"

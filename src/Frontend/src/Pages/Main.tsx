@@ -18,9 +18,11 @@ import EditIcon from "@mui/icons-material/Edit";
 import ExpensesApi from "../Apis/ExpensensApi";
 import EditDialog from "../Components/EditDialog";
 import { Expense } from "../Data/Expense";
+import { currentDateTimeString, DATETIME_FORMAT } from "../Utils/DateTimeRelated";
 
 const Main = () => {
   const [expenses, setExpenses] = useState<Map<number, Expense>>(new Map<number, Expense>());
+  const [dateTime, setDateTime] = useState(currentDateTimeString());
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -43,6 +45,7 @@ const Main = () => {
   const handleCloseDialog = () => {
     setOpen(false);
     setDescription("");
+    setDateTime(currentDateTimeString());
     setAmount("");
     setEditingId(null);
   };
@@ -56,6 +59,7 @@ const Main = () => {
     }
 
     const newExpense: Expense = { 
+      dateTime: dateTime,
       description: description, 
       amount: parseFloat(amount) 
     };
@@ -75,7 +79,10 @@ const Main = () => {
 
   const handleEdit = (id: number) => {
     const expense = expenses.get(id);
-    if (expense !== undefined) {
+    if (expense === undefined) {
+      setDateTime(currentDateTimeString());
+    } else {
+      setDateTime(expense.dateTime);
       setDescription(expense.description);
       setAmount(expense.amount.toString());
       setEditingId(id);
@@ -109,6 +116,7 @@ const Main = () => {
         <Table>
           <TableHead>
             <TableRow>
+              <TableCell>DateTime</TableCell>
               <TableCell>Description</TableCell>
               <TableCell>Amount</TableCell>
               <TableCell>Actions</TableCell>
@@ -117,6 +125,7 @@ const Main = () => {
           <TableBody>
             {Array.from(expenses.entries()).map((expense) => (
               <TableRow key={expense[0]}>
+                <TableCell>{expense[1].dateTime}</TableCell>
                 <TableCell>{expense[1].description}</TableCell>
                 <TableCell>${expense[1].amount.toFixed(2)}</TableCell>
                 <TableCell>
@@ -142,8 +151,10 @@ const Main = () => {
       <EditDialog 
         open={open}
         isNew={editingId === null}
+        dateTime={dateTime}
         description={description}
         amount={amount}
+        onDateTimeChange={value => setDateTime(value)}
         onDescriptionChange={value => setDescription(value)}
         onAmountChange={value => setAmount(value)}
         onClose={handleCloseDialog}

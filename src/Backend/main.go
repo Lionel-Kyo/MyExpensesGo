@@ -20,7 +20,7 @@ func main() {
 
 	if _, err := os.Stat(expensesPath); errors.Is(err, os.ErrNotExist) {
 		expenses.Value = make(map[uint64]Expense)
-		err := saveExpenses()
+		err := expenses.save()
 		if err != nil {
 			log.Fatal(err)
 			return

@@ -23,7 +23,7 @@ func insertExpense(c *gin.Context) {
 	expenses.LastestId += 1
 	expenses.Value[expenses.LastestId] = expense
 
-	err := saveExpenses()
+	err := expenses.save()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
@@ -52,7 +52,7 @@ func updateExpense(c *gin.Context) {
 	}
 
 	expenses.Value[id] = expense
-	err = saveExpenses()
+	err = expenses.save()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
@@ -75,7 +75,7 @@ func removeExpense(c *gin.Context) {
 	}
 
 	delete(expenses.Value, id)
-	err = saveExpenses()
+	err = expenses.save()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
