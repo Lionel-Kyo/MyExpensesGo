@@ -2,19 +2,15 @@ import React, { useState, useEffect } from "react";
 import {
   Button,
   Container,
-  Typography,
   IconButton,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   Box,
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
+import {
+  DataGrid,
+  GridColDef,
+} from "@mui/x-data-grid";
 import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import ExpensesApi from "../Apis/ExpensensApi";
 import EditDialog from "../Components/EditDialog";
 import { Expense } from "../Data/Expense";
@@ -99,6 +95,42 @@ const Main = () => {
     }
   };
 
+  const columns: GridColDef[] = [
+    { field: "dateTime", headerName: "DateTime", width: 300, editable: false },
+    { field: "description", headerName: "Description", width: 250, editable: false },
+    { field: "amount", headerName: "Amount", width: 250, editable: false },
+    {
+      field: "actions",
+      type: "actions",
+      headerName: "Edit / Delete",
+      width: 150,
+      cellClassName: "actions",
+      getActions: ({ id }) => {
+        return [
+          <IconButton
+          color="primary"
+          onClick={() => handleEdit(id.valueOf() as number)}
+        >
+          <EditIcon />
+        </IconButton>,
+        <IconButton
+          color="error"
+          onClick={() => handleDelete(id.valueOf() as number)}
+        >
+          <DeleteIcon/>
+        </IconButton>
+        ];
+      },
+    },
+  ];
+
+  const rows = Array.from(expenses.entries()).map((expense) => ({
+    id: expense[0],
+    dateTime: expense[1].dateTime,
+    description: expense[1].description,
+    amount: `$${expense[1].amount.toFixed(2)}`,
+  }));
+
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
       <Box sx={{ display: "flex", justifyContent: "flex-start", width: "100%" }}>
@@ -111,42 +143,12 @@ const Main = () => {
           Add Expense
         </Button>
       </Box>
-
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>DateTime</TableCell>
-              <TableCell>Description</TableCell>
-              <TableCell>Amount</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {Array.from(expenses.entries()).map((expense) => (
-              <TableRow key={expense[0]}>
-                <TableCell>{expense[1].dateTime}</TableCell>
-                <TableCell>{expense[1].description}</TableCell>
-                <TableCell>${expense[1].amount.toFixed(2)}</TableCell>
-                <TableCell>
-                  <IconButton
-                    color="primary"
-                    onClick={() => handleEdit(expense[0])}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton
-                    color="error"
-                    onClick={() => handleDelete(expense[0])}
-                  >
-                    <DeleteIcon/>
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      
+      <DataGrid
+        rows={rows}
+        columns={columns}
+        editMode="row"
+      />
 
       <EditDialog 
         open={open}
